@@ -1,21 +1,19 @@
-cocos2d-html5-howler
----
+#cocos2d-html5-howler
 
-**Description**
 
----
+##Description
 
 Extension of SimpleAudioEngine.js to use howler.js as Audio Engine.
 
 [Howler.js](http://goldfirestudios.com/blog/104/howler.js-Modern-Web-Audio-Javascript-Library) 
+
 [howler on github](https://github.com/goldfire/howler.js)
 
 
-Howler uses the Web Audio API and the HTML5 Audio API as fallback
+Howler uses the Web Audio API and the HTML5 Audio API as fallback.
+Why ist the Web Audio API better as the Audio API?
 
-why ist the Web Audio API better as the Audio API?
-
-Web Audio is much more flexible and the iphone/ipad the Audio API is really bad
+Web Audio is much more flexible and the iphone/ipad the Audio API is really bad.
 
 ---
 
@@ -23,11 +21,8 @@ preload and playEffect work so far
 
 TODO: test the remaining functions
 
----
 
-**Use**
-
----
+##Use
 
 add the 'howler.js' and 'HowlerAudioEngine.js' to your loader config
 
@@ -62,10 +57,7 @@ to:
 
 so the preloader can use howler
 
----
 
-**License**
-
----
+##License
 
 Released under the MIT License.
