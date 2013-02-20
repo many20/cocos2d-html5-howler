@@ -86,7 +86,7 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
         }
         this._playingMusic = keyname;
 
-        if (this._effectList.hasOwnProperty(keyname)) {
+        if (this._muiscList.hasOwnProperty(keyname)) {
             au = this._muiscList[keyname];
         } else {
             au = new Howl({
@@ -214,22 +214,17 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
             this._effectList[keyname] = au;
         }
 
+        //to prevent a bug. when one effect plays in a loop,
+        //no effect of the same type can play at the same time
+        if (au.loop()) {
+            return keyname;
+        }
+
         if (loop) {
             au.loop(loop);
         }
         au.play();
         return keyname;
-    },
-
-    /**
-     *The volume of the effects max value is 1.0,the min value is 0.0 .
-     * @return {Number}
-     * @example
-     * //example
-     * var effectVolume = cc.AudioEngine.getInstance().getEffectsVolume();
-     */
-    getEffectsVolume:function () {
-        return this._effectList[0].volume();
     },
 
     /**
@@ -250,8 +245,10 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
             this._effectsVolume = volume;
         }
 
-        for (var i = this._effectList.length - 1; i >= 0; i--) {
-            this._effectList[i].volume(volume);
+        for (var key in this._effectList) {
+            if (this._effectList.hasOwnProperty(key)) {
+                this._effectList[key].volume(volume);
+            }
         }
     },
 
@@ -265,7 +262,7 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
     pauseEffect:function (path) {
         var keyname = this._getPathWithoutExt(path);
         if (this._effectList.hasOwnProperty(keyname)) {
-            this._effectList[keyname].pause();
+            this._effectList[keyname].loop(false).pause();
         }
     },
 
@@ -276,8 +273,10 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().pauseAllEffects();
      */
     pauseAllEffects:function () {
-        for (var i = this._effectList.length - 1; i >= 0; i--) {
-            this._effectList[i].pause();
+        for (var key in this._effectList) {
+            if (this._effectList.hasOwnProperty(key)) {
+                this._effectList[key].loop(false).pause();
+            }
         }
     },
 
@@ -302,8 +301,10 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().resumeAllEffects();
      */
     resumeAllEffects:function () {
-        for (var i = this._effectList.length - 1; i >= 0; i--) {
-            this._effectList[i].play();
+        for (var key in this._effectList) {
+            if (this._effectList.hasOwnProperty(key)) {
+                this._effectList[key].play();
+            }
         }
     },
 
@@ -317,7 +318,7 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
     stopEffect:function (path) {
         var keyname = this._getPathWithoutExt(path);
         if (this._effectList.hasOwnProperty(keyname)) {
-            this._effectList[keyname].stop();
+            this._effectList[keyname].loop(false).stop();
         }
     },
 
@@ -328,8 +329,10 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().stopAllEffects();
      */
     stopAllEffects:function () {
-        for (var i = this._effectList.length - 1; i >= 0; i--) {
-            this._effectList[i].stop();
+        for (var key in this._effectList) {
+            if (this._effectList.hasOwnProperty(key)) {
+                this._effectList[key].loop(false).stop();
+            }
         }
     }
 
