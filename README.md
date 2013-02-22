@@ -17,10 +17,7 @@ Web Audio is much more flexible and the iphone/ipad the Audio API is really bad.
 
 ---
 
-preload and playEffect work so far
-
-TODO: test the remaining functions
-
+TODO: nothing 
 
 ##Use
 
