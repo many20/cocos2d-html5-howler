@@ -58,11 +58,19 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
             var extName = this._getExtFromFullPath(path);
             var keyname = this._getPathWithoutExt(path);
             if (this._checkAudioFormatSupported(extName) && !this._soundList.hasOwnProperty(keyname)) {
+                /*var sfxCache = new cc.SFX();
+                sfxCache.ext = extName;
+                sfxCache.audio = new Howl({
+                    urls: [path]
+                });
+
+                this._soundList[keyname] = sfxCache;*/
+
                 var soundCache = new Howl({
                     urls: [path]
                 });
 
-                this._soundList[keyname] = true;
+                //this._soundList[keyname] = true;
             }
         }
         cc.Loader.getInstance().onResLoaded();
@@ -78,21 +86,23 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      */
     playMusic:function (path, loop) {
         var keyname = this._getPathWithoutExt(path);
-        var actExt = this._supportedFormat[0];
-
+        var extName = this._getExtFromFullPath(path);
         var au;
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            this._muiscList[this._playingMusic].pause();
+
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            this._soundList[this._playingMusic].audio.pause();
         }
         this._playingMusic = keyname;
 
-        if (this._muiscList.hasOwnProperty(keyname)) {
-            au = this._muiscList[keyname];
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            au = this._soundList[keyname].audio;
         } else {
-            au = new Howl({
-                    urls: [keyname + "." + actExt]
+            var sfxCache = new cc.SFX();
+            sfxCache.ext = extName;
+            au = sfxCache.audio = new Howl({
+                    urls: [keyname + "." + extName]
             });
-            this._muiscList[keyname] = au;
+            this._soundList[keyname] = sfxCache;
         }
 
         if (loop) {
@@ -110,11 +120,11 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().stopMusic();
      */
     stopMusic:function (releaseData) {
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            this._muiscList[this._playingMusic].loop(false).stop();
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            this._soundList[this._playingMusic].audio.loop(false).stop();
             this._isMusicPlaying = false;
             if (releaseData) {
-                delete this._muiscList[this._playingMusic];
+                delete this._soundList[this._playingMusic];
             }
         }
     },
@@ -126,8 +136,8 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().pauseMusic();
      */
     pauseMusic:function () {
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            this._muiscList[this._playingMusic].pause();
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            this._soundList[this._playingMusic].audio.pause();
             this._isMusicPlaying = false;
         }
     },
@@ -139,8 +149,8 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().resumeMusic();
      */
     resumeMusic:function () {
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            this._muiscList[this._playingMusic].play();
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            this._soundList[this._playingMusic].audio.play();
             this._isMusicPlaying = true;
         }
     },
@@ -152,8 +162,8 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().rewindMusic();
      */
     rewindMusic:function () {
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            this._muiscList[this._playingMusic].stop().play();
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            this._soundList[this._playingMusic].audio.stop().play();
             this._isMusicPlaying = true;
         }
     },
@@ -166,8 +176,8 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * var volume = cc.AudioEngine.getInstance().getMusicVolume();
      */
     getMusicVolume:function () {
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            return this._muiscList[this._playingMusic].volume();
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            return this._soundList[this._playingMusic].audio.volume();
         }
         return 0;
     },
@@ -180,8 +190,8 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().setMusicVolume(0.5);
      */
     setMusicVolume:function (volume) {
-        if (this._muiscList.hasOwnProperty(this._playingMusic)) {
-            var music = this._muiscList[this._playingMusic];
+        if (this._soundList.hasOwnProperty(this._playingMusic)) {
+            var music = this._soundList[this._playingMusic].audio;
             if (volume > 1) {
                 music.volume(1);
             } else if (volume < 0) {
@@ -201,8 +211,13 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * var soundId = cc.AudioEngine.getInstance().playEffect(path);
      */
     playEffect:function (path, loop) {
-        var keyname = this._getPathWithoutExt(path);
-        var actExt = this._supportedFormat[0];
+        var keyname = this._getPathWithoutExt(path), actExt;
+        if (this._soundList.hasOwnProperty(keyname)) {
+            actExt = this._soundList[keyname].ext;
+        }
+        else {
+            actExt = this._getExtFromFullPath(path);
+        }
 
         var au;
         if (this._effectList.hasOwnProperty(keyname)) {
@@ -217,14 +232,14 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
         //to prevent a bug. when one effect plays in a loop,
         //no effect of the same type can play at the same time
         if (au.loop()) {
-            return keyname;
+            return path;
         }
 
         if (loop) {
             au.loop(loop);
         }
         au.play();
-        return keyname;
+        return path;
     },
 
     /**
@@ -260,6 +275,7 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().pauseEffect(path);
      */
     pauseEffect:function (path) {
+        if (!path) return;
         var keyname = this._getPathWithoutExt(path);
         if (this._effectList.hasOwnProperty(keyname)) {
             this._effectList[keyname].loop(false).pause();
@@ -288,6 +304,7 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().resumeEffect(path);
      */
     resumeEffect:function (path) {
+        if (!path) return;
         var keyname = this._getPathWithoutExt(path);
         if (this._effectList.hasOwnProperty(keyname)) {
             this._effectList[keyname].play();
@@ -316,6 +333,7 @@ cc.HowlerAudioEngine = cc.AudioEngine.extend(/** @lends cc.AudioEngine# */{
      * cc.AudioEngine.getInstance().stopEffect(path);
      */
     stopEffect:function (path) {
+        if (!path) return;
         var keyname = this._getPathWithoutExt(path);
         if (this._effectList.hasOwnProperty(keyname)) {
             this._effectList[keyname].loop(false).stop();
