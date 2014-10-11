@@ -1,5 +1,7 @@
 #cocos2d-html5-howler
 
+###not compatible with cocos2d 3.x at the moment!
+
 
 ##Description
 
