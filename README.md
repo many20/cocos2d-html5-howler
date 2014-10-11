@@ -13,11 +13,11 @@ Extension of SimpleAudioEngine.js to use howler.js as Audio Engine.
 Howler uses the Web Audio API and the HTML5 Audio API as fallback.
 Why ist the Web Audio API better as the Audio API?
 
-Web Audio is much more flexible and the iphone/ipad the Audio API is really bad.
+Web Audio is much more flexible and on the iPhone/iPad the Audio API is really bad.
 
 ---
 
-TODO: nothing 
+TODO: make it compatible with cocos2d 3.x 
 
 ##Use
 
